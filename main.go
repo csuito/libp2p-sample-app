@@ -19,18 +19,18 @@ func main() {
 	if err := core.Get().Init(); err != nil {
 		panic(err)
 	}
-	// LibP2P code uses golog to log messages
+
 	golog.SetAllLoggers(golog.LevelInfo)
 
 	// Parse options from the command line
-	listenF := flag.Int("l", 0, "wait for incoming connections")
+	listenF := flag.Int("p", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
 	secio := flag.Bool("secio", false, "enable secio")
 	seed := flag.Int64("seed", 0, "set random seed for id generation")
 	flag.Parse()
 
 	if *listenF == 0 {
-		log.Fatal("Please provide a port to bind on with -l")
+		log.Fatal("Please provide a port to bind on with -p")
 	}
 
 	h, err := p2p.CreateHost(*listenF, *secio, *seed)

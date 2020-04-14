@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-var (
-	Blockchain []Block
-)
-
-// Block : defines the structure of a block
 type Block struct {
 	Index     int
 	Timestamp string
