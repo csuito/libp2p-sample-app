@@ -6,10 +6,17 @@ import (
 	"github.com/csuito/block/core/types"
 )
 
-type blockchain []types.Block
+var (
+	chain *Blockchain = &Blockchain{}
+)
 
-func Initialize() *blockchain {
-	chain := &blockchain{}
+type Blockchain []types.Block
+
+func Get() *Blockchain {
+	return chain
+}
+
+func (bc *Blockchain) Init() error {
 	gb := types.Block{}
 	gb = types.Block{
 		Index:     0,
@@ -18,11 +25,13 @@ func Initialize() *blockchain {
 		Hash:      gb.CalculateHash(),
 		PrevHash:  "",
 	}
-	*chain = append(*chain, gb)
-	return chain
+	if err := chain.AddBlock(gb); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (bc *blockchain) AddBlock(b types.Block) error {
+func (bc *Blockchain) AddBlock(b types.Block) error {
 	if len(*bc) > 0 {
 		if err := b.Validate((*bc)[len(*bc)-1]); err != nil {
 			return err

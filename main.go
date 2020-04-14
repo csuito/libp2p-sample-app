@@ -6,9 +6,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/csuito/block/core/types"
+	"github.com/csuito/block/core"
 	"github.com/csuito/block/p2p"
 	golog "github.com/ipfs/go-log"
 	peer "github.com/libp2p/go-libp2p-peer"
@@ -16,21 +15,10 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-var (
-	bc = types.Blockchain
-)
-
 func main() {
-	gb := types.Block{}
-	gb = types.Block{
-		Index:     0,
-		Timestamp: time.Now().UTC().String(),
-		BPM:       0,
-		Hash:      gb.CalculateHash(),
-		PrevHash:  "",
+	if err := core.Get().Init(); err != nil {
+		panic(err)
 	}
-	bc = append(bc, gb)
-
 	// LibP2P code uses golog to log messages
 	golog.SetAllLoggers(golog.LevelInfo)
 

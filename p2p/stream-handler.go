@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/csuito/block/core"
 	"github.com/csuito/block/core/types"
 	"github.com/davecgh/go-spew/spew"
 	net "github.com/libp2p/go-libp2p-net"
@@ -18,7 +19,7 @@ import (
 
 var (
 	mux = &sync.Mutex{}
-	bc  = types.Blockchain
+	bc  = core.Get()
 )
 
 func HandleStream(s net.Stream) {
@@ -41,15 +42,15 @@ func ReadData(rw *bufio.ReadWriter) {
 			return
 		}
 		if str != "\n" {
-			chain := make([]types.Block, 0)
+			chain := make(core.Blockchain, 0)
 			if err := json.Unmarshal([]byte(str), &chain); err != nil {
 				log.Fatal(err)
 			}
 
 			// Following block will execute in mutual exclusion to avoid conflicts
 			mux.Lock()
-			if len(chain) > len(bc) {
-				bc = chain
+			if len(chain) > len(*bc) {
+				*bc = chain
 				bytes, err := json.MarshalIndent(bc, "", "	")
 				if err != nil {
 					log.Fatal(err)
@@ -87,8 +88,7 @@ func WriteData(rw *bufio.ReadWriter) {
 		fmt.Print("> ")
 		sendData, err := stdReader.ReadString('\n')
 		if err != nil {
-			fmt.Println("HERE")
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 
 		sendData = strings.Replace(sendData, "\n", "", -1)
@@ -96,16 +96,17 @@ func WriteData(rw *bufio.ReadWriter) {
 		fmt.Println(sendData)
 		bpm, err := strconv.Atoi(sendData)
 		if err != nil {
-			fmt.Println("STRCONV ERROR")
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 
-		lastBlock := bc[len(bc)-1]
-		b := types.NewBlock(lastBlock, bpm)
+		lb := (*bc)[len(*bc)-1]
+		b := types.NewBlock(lb, bpm)
 
-		if b.Validate(lastBlock) {
+		if err := b.Validate(lb); err != nil {
+			fmt.Println(err)
+		} else {
 			mux.Lock()
-			bc = append(bc, b)
+			bc.AddBlock(b)
 			mux.Unlock()
 		}
 
