@@ -11,7 +11,7 @@ import (
 type Block struct {
 	Index     int
 	Timestamp string
-	BPM       int
+	Message   string
 	Hash      string
 	PrevHash  string
 }
@@ -30,17 +30,17 @@ func (b *Block) Validate(lastBlock Block) error {
 }
 
 func (b *Block) CalculateHash() string {
-	r := strconv.Itoa(b.Index) + b.Timestamp + strconv.Itoa(b.BPM) + b.PrevHash
+	r := strconv.Itoa(b.Index) + b.Timestamp + b.Message + b.PrevHash
 	h := sha256.New()
 	h.Write([]byte(r))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func NewBlock(prevBlock Block, bpm int) Block {
+func NewBlock(prevBlock Block, msg string) Block {
 	b := Block{
 		Index:     prevBlock.Index + 1,
 		Timestamp: time.Now().UTC().String(),
-		BPM:       bpm,
+		Message:   msg,
 		PrevHash:  prevBlock.Hash,
 	}
 	b.Hash = b.CalculateHash()

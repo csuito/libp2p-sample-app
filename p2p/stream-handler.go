@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,9 +22,8 @@ var (
 )
 
 func HandleStream(s net.Stream) {
-	log.Println("Got a new stream!")
+	log.Println("Received new stream...")
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
-
 	go ReadData(rw)
 	go WriteData(rw)
 }
@@ -67,7 +65,7 @@ func ReadData(rw *bufio.ReadWriter) {
 func WriteData(rw *bufio.ReadWriter) {
 	go func() {
 		for {
-			// Every five seconds we broadcast the latest state of our blockchain to our peers
+			// Broadcast the latest state of our blockchain to our peers
 			time.Sleep(5 * time.Second)
 			mux.Lock()
 			bytes, err := json.Marshal(bc)
@@ -86,21 +84,15 @@ func WriteData(rw *bufio.ReadWriter) {
 	stdReader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("> ")
-		sendData, err := stdReader.ReadString('\n')
+		msg, err := stdReader.ReadString('\n')
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		sendData = strings.Replace(sendData, "\n", "", -1)
-
-		fmt.Println(sendData)
-		bpm, err := strconv.Atoi(sendData)
-		if err != nil {
-			fmt.Println(err)
-		}
+		msg = strings.Replace(msg, "\n", "", -1)
 
 		lb := (*bc)[len(*bc)-1]
-		b := types.NewBlock(lb, bpm)
+		b := types.NewBlock(lb, msg)
 
 		if err := b.Validate(lb); err != nil {
 			fmt.Println(err)

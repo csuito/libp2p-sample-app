@@ -78,7 +78,6 @@ func main() {
 		h.Peerstore().AddAddr(peerid, targetAddr, pstore.PermanentAddrTTL)
 
 		log.Println("opening stream")
-
 		// make a new stream from host B to host A
 		// it should be handled on host A by the handler we set above because
 		// we use the same /p2p/1.0.0 protocol

@@ -32,12 +32,14 @@ func CreateHost(port int, secio bool, randseed int64) (host.Host, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Config options for host
 	options := []libp2p.Option{
 		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)),
 		libp2p.Identity(priv),
 	}
 
+	// Initialize a background context
 	host, err := libp2p.New(context.Background(), options...)
 	if err != nil {
 		return nil, err
@@ -54,10 +56,9 @@ func CreateHost(port int, secio bool, randseed int64) (host.Host, error) {
 
 	// Secio toggles secure data streams
 	if secio {
-		log.Printf("Now run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", port+1, fullAddr)
+		log.Printf("Now run \"go run main.go -p %d -d %s -secio\" on a different terminal\n", port+1, fullAddr)
 	} else {
-		log.Printf("Now run \"go run main.go -l %d -d %s\" on a different terminal\n", port+1, fullAddr)
+		log.Printf("Now run \"go run main.go -p %d -d %s\" on a different terminal\n", port+1, fullAddr)
 	}
-
 	return host, nil
 }

@@ -21,7 +21,7 @@ func (bc *Blockchain) Init() error {
 	gb = types.Block{
 		Index:     0,
 		Timestamp: time.Now().UTC().String(),
-		BPM:       0,
+		Message:   "Genesis",
 		Hash:      gb.CalculateHash(),
 		PrevHash:  "",
 	}
